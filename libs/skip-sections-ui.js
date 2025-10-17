@@ -61,7 +61,9 @@ function skipSectionsPlugin(option = {}) {
                         <input id="outroInput" type="number" min="0" step="1" value="${skipOutro}" style="width:60px;text-align:center;border-radius:4px;border:none;padding:2px;color: #333;">
                     </label>
                     <div style="display:flex;align-items:center;gap:8px;margin-top:8px;font-size:12px;">
-                        <span>片尾偏好: <span id="prefStatus">${userPref || '未设置'}</span></span>
+                        <span>片尾偏好: <span id="prefStatus">${
+                          userPref || "未设置"
+                        }</span></span>
                         <button id="clearPref" style="background:#ff9800;color:#fff;border:none;border-radius:3px;padding:2px 6px;cursor:pointer;font-size:11px;">重置</button>
                     </div>
                     <div style="display:flex;justify-content:space-between;gap:8px;margin-top:8px;">
@@ -79,6 +81,41 @@ function skipSectionsPlugin(option = {}) {
       },
     });
 
+    // ======== 片尾提示层 ========
+    layers.add({
+      name: "outroPrompt",
+      html: `
+        <div style="
+          position: absolute;
+          bottom: 20%;
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(0,0,0,0.6);
+          color: #fff;
+          padding: 8px 12px;
+          border-radius: 8px;
+          font-size: 14px;
+          display: flex;
+          gap: 8px;
+          align-items: center;
+          z-index: 9999;
+        ">
+          <span>是否跳过片尾？</span>
+          <button id="outroYes" style="background:#2196f3;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">是</button>
+          <button id="outroNo" style="background:#666;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">否</button>
+        </div>
+      `,
+      style: {
+        display: "none",
+        position: "absolute",
+        bottom: "0",
+        left: "0",
+        right: "0",
+        top: "0",
+        zIndex: 9999,
+      },
+    });
+
     function togglePanel() {
       const panel = layers.skipPanel;
       if (panel.style.display === "none") {
@@ -91,8 +128,12 @@ function skipSectionsPlugin(option = {}) {
           if (introInput) introInput.value = skipIntro;
           if (outroInput) outroInput.value = skipOutro;
           if (prefStatus) {
-            const prefText = userPref === 'skip' ? '自动跳过' : 
-                           userPref === 'no-skip' ? '不跳过' : '未设置';
+            const prefText =
+              userPref === "skip"
+                ? "自动跳过"
+                : userPref === "no-skip"
+                ? "不跳过"
+                : "未设置";
             prefStatus.textContent = prefText;
           }
         }, 50);
@@ -127,7 +168,8 @@ function skipSectionsPlugin(option = {}) {
       if (skipIntro > 0 && video.currentTime < skipIntro) {
         setTimeout(() => {
           video.currentTime = skipIntro;
-          notice.show(`自动跳过 ${skipIntro} 秒片头`);
+          notice.show = `自动跳过 ${skipIntro} 秒片头`;
+          setTimeout(() => (notice.show = ""), 3000);
         }, 500);
       }
     });
@@ -157,94 +199,34 @@ function skipSectionsPlugin(option = {}) {
     });
 
     function showOutroPrompt() {
-      // 添加片尾跳过提示层
-      layers.add({
-        name: "outroPrompt",
-        html: `
-          <div style="
-            position: absolute;
-            bottom: 20%;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.6);
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 14px;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            z-index: 9999;
-          ">
-            <span>是否跳过片尾？</span>
-            <button id="outroYes" style="background:#2196f3;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">是</button>
-            <button id="outroNo" style="background:#666;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">否</button>
-          </div>
-        `,
-        style: {
-          display: "block",
-          position: "absolute",
-          bottom: "0",
-          left: "0",
-          right: "0",
-          top: "0",
-          zIndex: 9999,
-          pointerEvents: "none"
-        }
-      });
-
-      // 初始化按钮事件
-      setTimeout(() => {
-        const yesBtn = document.getElementById("outroYes");
-        const noBtn = document.getElementById("outroNo");
-        
-        if (yesBtn && noBtn) {
-          // 启用按钮的指针事件
-          yesBtn.style.pointerEvents = "auto";
-          noBtn.style.pointerEvents = "auto";
-          
-          yesBtn.onclick = () => {
-            saveUserPref("skip");
-            video.currentTime = video.duration - 1;
-            notice.show = `已跳过片尾，并记住此选择`;
-            setTimeout(() => (notice.show = ""), 3000);
-            layers.outroPrompt.style.display = "none";
-          };
-          
-          noBtn.onclick = () => {
-            saveUserPref("no-skip");
-            notice.show = `保留片尾播放，并记住此选择`;
-            setTimeout(() => (notice.show = ""), 3000);
-            layers.outroPrompt.style.display = "none";
-          };
-        }
-      }, 50);
+      // 显示片尾跳过提示层
+      layers.outroPrompt.style.display = "block";
     }
 
     function loadUserPref() {
       try {
         return localStorage.getItem(storageKey);
       } catch (e) {
-        console.warn('无法加载用户偏好设置:', e);
+        console.warn("无法加载用户偏好设置:", e);
         return null;
       }
     }
-    
+
     function saveUserPref(pref) {
       try {
         localStorage.setItem(storageKey, pref);
         userPref = pref;
       } catch (e) {
-        console.warn('无法保存用户偏好设置:', e);
+        console.warn("无法保存用户偏好设置:", e);
       }
     }
-    
+
     function clearUserPref() {
       try {
         localStorage.removeItem(storageKey);
         userPref = null;
       } catch (e) {
-        console.warn('无法清除用户偏好设置:', e);
+        console.warn("无法清除用户偏好设置:", e);
       }
     }
 
@@ -253,7 +235,9 @@ function skipSectionsPlugin(option = {}) {
       const saveBtn = document.getElementById("saveSkip");
       const closeBtn = document.getElementById("closeSkip");
       const clearPrefBtn = document.getElementById("clearPref");
-      
+      const outroYesBtn = document.getElementById("outroYes");
+      const outroNoBtn = document.getElementById("outroNo");
+
       if (saveBtn && closeBtn && clearPrefBtn) {
         saveBtn.addEventListener("click", saveSettings);
         closeBtn.addEventListener("click", togglePanel);
@@ -267,6 +251,28 @@ function skipSectionsPlugin(option = {}) {
         });
       } else {
         // 如果DOM还没有渲染完成，稍后重试
+        setTimeout(initPanelEvents, 100);
+        return;
+      }
+
+      // 初始化片尾提示按钮事件
+      if (outroYesBtn && outroNoBtn) {
+        outroYesBtn.addEventListener("click", () => {
+          saveUserPref("skip");
+          video.currentTime = video.duration - 1;
+          notice.show = `已跳过片尾，并记住此选择`;
+          setTimeout(() => (notice.show = ""), 3000);
+          layers.outroPrompt.style.display = "none";
+        });
+
+        outroNoBtn.addEventListener("click", () => {
+          saveUserPref("no-skip");
+          notice.show = `保留片尾播放，并记住此选择`;
+          setTimeout(() => (notice.show = ""), 3000);
+          layers.outroPrompt.style.display = "none";
+        });
+      } else {
+        // 如果片尾提示按钮还没有渲染完成，稍后重试
         setTimeout(initPanelEvents, 100);
       }
     }
@@ -301,19 +307,26 @@ function skipSectionsPlugin(option = {}) {
         return userPref;
       },
       setUserPref(pref) {
-        if (pref === 'skip' || pref === 'no-skip' || pref === null) {
+        if (pref === "skip" || pref === "no-skip" || pref === null) {
           if (pref === null) {
             clearUserPref();
           } else {
             saveUserPref(pref);
           }
-          notice.show = `片尾偏好已设置为: ${pref === 'skip' ? '自动跳过' : pref === 'no-skip' ? '不跳过' : '未设置'}`;
+          notice.show = `片尾偏好已设置为: ${
+            pref === "skip"
+              ? "自动跳过"
+              : pref === "no-skip"
+              ? "不跳过"
+              : "未设置"
+          }`;
           setTimeout(() => (notice.show = ""), 2000);
         }
       },
       destroy() {
         controls.remove("skip-settings");
         layers.skipPanel && (layers.skipPanel.style.display = "none");
+        layers.outroPrompt && (layers.outroPrompt.style.display = "none");
       },
     };
   };
