@@ -22,10 +22,10 @@ function skipSectionsPlugin(option = {}) {
                     font-size: 13px;
                 ">
                     <label>片头跳过秒数：
-                        <input id="introInput" type="number" min="0" step="1" value="${skipIntro}" style="width:60px;text-align:center;border-radius:4px;border:none;padding:2px;">
+                        <input id="introInput" type="number" min="0" step="1" value="${skipIntro}" style="width:60px;text-align:center;border-radius:4px;border:none;padding:2px;color: #333;">
                     </label>
                     <label>片尾跳过秒数：
-                        <input id="outroInput" type="number" min="0" step="1" value="${skipOutro}" style="width:60px;text-align:center;border-radius:4px;border:none;padding:2px;">
+                        <input id="outroInput" type="number" min="0" step="1" value="${skipOutro}" style="width:60px;text-align:center;border-radius:4px;border:none;padding:2px;color: #333;">
                     </label>
                     <div style="display:flex;justify-content:space-between;gap:8px;margin-top:8px;">
                         <button id="saveSkip" style="flex:1;background:#2196f3;color:#fff;border:none;border-radius:4px;padding:4px;cursor:pointer;">保存</button>
@@ -50,7 +50,8 @@ function skipSectionsPlugin(option = {}) {
             const outroVal = Number(document.getElementById('outroInput').value);
             skipIntro = introVal;
             skipOutro = outroVal;
-            notice.show(`跳过设置已更新：片头 ${skipIntro}s，片尾 ${skipOutro}s`);
+            notice.show = `跳过设置已更新：片头 ${skipIntro}s，片尾 ${skipOutro}s`;
+            setTimeout(()=> notice.show = '', 3000);
             layers.skipPanel.style.display = 'none';
         }
 
@@ -66,7 +67,8 @@ function skipSectionsPlugin(option = {}) {
                 e.preventDefault();
                 localStorage.removeItem(storageKey);
                 userPref = null;
-                notice.show('已重置片尾跳过偏好');
+                notice.show = '已重置片尾跳过偏好';
+                setTimeout(()=> notice.show = '', 3000);
             },
         });
 
@@ -82,18 +84,20 @@ function skipSectionsPlugin(option = {}) {
         function handleSkip() {
             if (skipIntro > 0 && video.currentTime < skipIntro) {
                 video.currentTime = skipIntro;
-                notice.show(`已跳过 ${skipIntro} 秒片头`);
+                notice.show = `已跳过 ${skipIntro} 秒片头`;
+                setTimeout(()=> notice.show = '', 3000);
                 return;
             }
 
             if (skipOutro > 0 && video.duration - video.currentTime <= skipOutro) {
                 video.currentTime = video.duration - 1;
-                notice.show(`已跳过片尾`);
+                notice.show = `已跳过片尾`;
+                setTimeout(()=> notice.show = '', 3000);
                 outroPromptShown = true;
                 return;
             }
-
-            notice.show('当前不在片头或片尾区域');
+            notice.show = `当前不在片头或片尾区域`;
+            setTimeout(()=> notice.show = '', 3000);
         }
 
         // ======== 自动跳过片头 ========
@@ -112,12 +116,15 @@ function skipSectionsPlugin(option = {}) {
                 outroPromptShown = true;
                 if (userPref === 'skip') {
                     video.currentTime = video.duration - 1;
-                    notice.show('根据偏好自动跳过片尾');
+                    notice.show = `根据偏好自动跳过片尾`;
+                    setTimeout(()=> notice.show = '', 3000);
                 } else if (userPref === 'no-skip') {
-                    notice.show('根据偏好保留片尾播放');
+                    notice.show = `根据偏好保留片尾播放`;
+                    setTimeout(()=> notice.show = '', 3000);
                 } else if (autoConfirm) {
                     video.currentTime = video.duration - 1;
-                    notice.show(`自动跳过片尾 (${skipOutro}s)`);
+                    notice.show = `自动跳过片尾 (${skipOutro}s)`;
+                    setTimeout(()=> notice.show = '', 3000);
                 } else {
                     showOutroPrompt();
                 }
@@ -140,12 +147,14 @@ function skipSectionsPlugin(option = {}) {
             yesBtn.onclick = () => {
                 saveUserPref('skip');
                 video.currentTime = video.duration - 1;
-                notice.show('已跳过片尾，并记住此选择');
+                notice.show = `已跳过片尾，并记住此选择`;
+                setTimeout(()=> notice.show = '', 3000);
                 layer.remove();
             };
             noBtn.onclick = () => {
                 saveUserPref('no-skip');
-                notice.show('保留片尾播放，并记住此选择');
+                notice.show = `保留片尾播放，并记住此选择`;
+                setTimeout(()=> notice.show = '', 3000);
                 layer.remove();
             };
             layers.append(layer);
@@ -172,7 +181,8 @@ function skipSectionsPlugin(option = {}) {
             setSkip(intro, outro) {
                 skipIntro = intro;
                 skipOutro = outro;
-                notice.show(`更新跳过设置：片头 ${intro}s，片尾 ${outro}s`);
+                notice.show = `更新跳过设置：片头 ${intro}s，片尾 ${outro}s`;
+                setTimeout(()=> notice.show = '', 3000);
             },
             destroy() {
                 controls.remove('skip-settings');
