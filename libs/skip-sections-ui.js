@@ -163,20 +163,15 @@ function skipSectionsPlugin(option = {}) {
       style: { cursor: "pointer", fontSize: "13px", padding: "2px 8px" },
     });
 
-    // ======== 自动跳过片头 ========
-    art.on("ready", () => {
+    // ======== 片头/片尾检测 ========
+    art.on("video:timeupdate", () => {
       if (skipIntro > 0 && video.currentTime < skipIntro) {
         setTimeout(() => {
           video.currentTime = skipIntro;
           notice.show = `自动跳过 ${skipIntro} 秒片头`;
           setTimeout(() => (notice.show = ""), 3000);
         }, 500);
-      }
-    });
-
-    // ======== 片尾检测 ========
-    art.on("video:timeupdate", () => {
-      if (skipOutro > 0 && video.duration > 0 && !outroPromptShown) {
+      } else if (skipOutro > 0 && video.duration > 0 && !outroPromptShown) {
         const remainingTime = video.duration - video.currentTime;
         if (remainingTime <= skipOutro && remainingTime > 0) {
           outroPromptShown = true;
