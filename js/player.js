@@ -472,7 +472,7 @@ function initPlayer(videoUrl) {
             crossOrigin: 'anonymous',
         },
         plugins: [
-            artplayerPluginSkipSectionsUI({
+            skipSectionsPlugin({
               skipIntro: 0, // 初始值可为0，后续可通过UI修改
               skipOutro: 0,
               autoConfirm: false,
