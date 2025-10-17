@@ -107,7 +107,7 @@ function artplayerPluginSkipSectionsUI(options = {}) {
         notice.show('保留片尾播放，并记住此选择');
         layer.remove();
       };
-      layers.append(layer);
+      layers.add(layer);
     }
 
     /** =============== 设置面板 =============== */
@@ -135,7 +135,7 @@ function artplayerPluginSkipSectionsUI(options = {}) {
           <button id="closeSkip" style="flex:1;background:#555;color:#fff;border:none;border-radius:4px;padding:4px;cursor:pointer;">关闭</button>
         </div>
       `;
-      layers.append(panelEl);
+      layers.add(panelEl);
       panelVisible = true;
 
       const [introInput, outroInput] = panelEl.querySelectorAll('input');
