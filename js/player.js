@@ -471,6 +471,13 @@ function initPlayer(videoUrl) {
         moreVideoAttr: {
             crossOrigin: 'anonymous',
         },
+        plugins: [
+            artplayerPluginSkipSectionsUI({
+              skipIntro: 0, // 初始值可为0，后续可通过UI修改
+              skipOutro: 0,
+              autoConfirm: false,
+            }),
+          ],
         customType: {
             m3u8: function (video, url) {
                 // 清理之前的HLS实例
