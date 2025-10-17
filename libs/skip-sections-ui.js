@@ -133,7 +133,7 @@ function skipSectionsPlugin(option = {}) {
     });
 
     // ======== 片尾检测 ========
-    art.on("timeupdate", () => {
+    art.on("video:timeupdate", () => {
       if (skipOutro > 0 && video.duration > 0 && !outroPromptShown) {
         const remainingTime = video.duration - video.currentTime;
         if (remainingTime <= skipOutro && remainingTime > 0) {
