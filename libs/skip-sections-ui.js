@@ -157,32 +157,68 @@ function skipSectionsPlugin(option = {}) {
     });
 
     function showOutroPrompt() {
-      const layer = document.createElement("div");
-      layer.style.cssText = `
-                position:absolute;bottom:20%;left:50%;transform:translateX(-50%);
-                background:rgba(0,0,0,0.6);color:#fff;padding:8px 12px;border-radius:8px;
-                font-size:14px;display:flex;gap:8px;align-items:center;z-index:9999;
-            `;
-      layer.innerHTML = `
-                <span>是否跳过片尾？</span>
-                <button style="background:#2196f3;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">是</button>
-                <button style="background:#666;color:#fff;border:none;padding:4px 8px;border-radius:4px;border-radius:4px;cursor:pointer;">否</button>
-            `;
-      const [yesBtn, noBtn] = layer.querySelectorAll("button");
-      yesBtn.onclick = () => {
-        saveUserPref("skip");
-        video.currentTime = video.duration - 1;
-        notice.show = `已跳过片尾，并记住此选择`;
-        setTimeout(() => (notice.show = ""), 3000);
-        layer.remove();
-      };
-      noBtn.onclick = () => {
-        saveUserPref("no-skip");
-        notice.show = `保留片尾播放，并记住此选择`;
-        setTimeout(() => (notice.show = ""), 3000);
-        layer.remove();
-      };
-      layers.append(layer);
+      // 添加片尾跳过提示层
+      layers.add({
+        name: "outroPrompt",
+        html: `
+          <div style="
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            z-index: 9999;
+          ">
+            <span>是否跳过片尾？</span>
+            <button id="outroYes" style="background:#2196f3;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">是</button>
+            <button id="outroNo" style="background:#666;color:#fff;border:none;padding:4px 8px;border-radius:4px;cursor:pointer;">否</button>
+          </div>
+        `,
+        style: {
+          display: "block",
+          position: "absolute",
+          bottom: "0",
+          left: "0",
+          right: "0",
+          top: "0",
+          zIndex: 9999,
+          pointerEvents: "none"
+        }
+      });
+
+      // 初始化按钮事件
+      setTimeout(() => {
+        const yesBtn = document.getElementById("outroYes");
+        const noBtn = document.getElementById("outroNo");
+        
+        if (yesBtn && noBtn) {
+          // 启用按钮的指针事件
+          yesBtn.style.pointerEvents = "auto";
+          noBtn.style.pointerEvents = "auto";
+          
+          yesBtn.onclick = () => {
+            saveUserPref("skip");
+            video.currentTime = video.duration - 1;
+            notice.show = `已跳过片尾，并记住此选择`;
+            setTimeout(() => (notice.show = ""), 3000);
+            layers.outroPrompt.style.display = "none";
+          };
+          
+          noBtn.onclick = () => {
+            saveUserPref("no-skip");
+            notice.show = `保留片尾播放，并记住此选择`;
+            setTimeout(() => (notice.show = ""), 3000);
+            layers.outroPrompt.style.display = "none";
+          };
+        }
+      }, 50);
     }
 
     function loadUserPref() {
