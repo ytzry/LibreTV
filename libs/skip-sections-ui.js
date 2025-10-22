@@ -142,14 +142,19 @@ function skipSectionsPlugin(option = {}) {
       }
     }
 
+    function showNotice(message, duration = 3000) {
+      notice.show = message;
+      setTimeout(() => (notice.show = ""), duration);
+    }
+
+
     function saveSettings() {
       const introVal = Number(document.getElementById("introInput").value);
       const outroVal = Number(document.getElementById("outroInput").value);
       skipIntro = introVal;
       skipOutro = outroVal;
       saveSkipSettings(); // 保存到localStorage
-      notice.show = `跳过设置已更新：片头 ${skipIntro}s，片尾 ${skipOutro}s`;
-      setTimeout(() => (notice.show = ""), 3000);
+      showNotice(`跳过设置已更新：片头 ${skipIntro}s，片尾 ${skipOutro}s`);
       layers.skipPanel.style.display = "none";
     }
 
@@ -168,8 +173,7 @@ function skipSectionsPlugin(option = {}) {
       if (skipIntro > 0 && video.currentTime < skipIntro) {
         setTimeout(() => {
           video.currentTime = skipIntro;
-          notice.show = `自动跳过 ${skipIntro} 秒片头`;
-          setTimeout(() => (notice.show = ""), 3000);
+          showNotice(`自动跳过 ${skipIntro} 秒片头`);
         }, 500);
       } else if (skipOutro > 0 && video.duration > 0 && !outroPromptShown) {
         const remainingTime = video.duration - video.currentTime;
@@ -177,15 +181,12 @@ function skipSectionsPlugin(option = {}) {
           outroPromptShown = true;
           if (userPref === "skip") {
             video.currentTime = video.duration - 1;
-            notice.show = `根据偏好自动跳过片尾`;
-            setTimeout(() => (notice.show = ""), 3000);
+            showNotice(`根据偏好自动跳过片尾`);
           } else if (userPref === "no-skip") {
-            notice.show = `根据偏好保留片尾播放`;
-            setTimeout(() => (notice.show = ""), 3000);
+            showNotice(`根据偏好保留片尾播放`);
           } else if (autoConfirm) {
             video.currentTime = video.duration - 1;
-            notice.show = `自动跳过片尾 (${skipOutro}s)`;
-            setTimeout(() => (notice.show = ""), 3000);
+            showNotice(`自动跳过片尾 (${skipOutro}s)`);
           } else {
             showOutroPrompt();
           }
@@ -238,8 +239,7 @@ function skipSectionsPlugin(option = {}) {
         closeBtn.addEventListener("click", togglePanel);
         clearPrefBtn.addEventListener("click", () => {
           clearUserPref();
-          notice.show = "已重置片尾偏好设置";
-          setTimeout(() => (notice.show = ""), 2000);
+          showNotice("已重置片尾偏好设置", 2000);
           // 更新显示状态
           const prefStatus = document.getElementById("prefStatus");
           if (prefStatus) prefStatus.textContent = "未设置";
@@ -255,15 +255,13 @@ function skipSectionsPlugin(option = {}) {
         outroYesBtn.addEventListener("click", () => {
           saveUserPref("skip");
           video.currentTime = video.duration - 1;
-          notice.show = `已跳过片尾，并记住此选择`;
-          setTimeout(() => (notice.show = ""), 3000);
+          showNotice(`已跳过片尾，并记住此选择`);
           layers.outroPrompt.style.display = "none";
         });
 
         outroNoBtn.addEventListener("click", () => {
           saveUserPref("no-skip");
-          notice.show = `保留片尾播放，并记住此选择`;
-          setTimeout(() => (notice.show = ""), 3000);
+          showNotice(`保留片尾播放，并记住此选择`);
           layers.outroPrompt.style.display = "none";
         });
       } else {
@@ -292,8 +290,7 @@ function skipSectionsPlugin(option = {}) {
         skipIntro = intro;
         skipOutro = outro;
         saveSkipSettings(); // 保存设置
-        notice.show = `更新跳过设置：片头 ${intro}s，片尾 ${outro}s`;
-        setTimeout(() => (notice.show = ""), 3000);
+        showNotice(`更新跳过设置：片头 ${intro}s，片尾 ${outro}s`);
       },
       getSkipSettings() {
         return { skipIntro, skipOutro, userPref };
@@ -308,14 +305,16 @@ function skipSectionsPlugin(option = {}) {
           } else {
             saveUserPref(pref);
           }
-          notice.show = `片尾偏好已设置为: ${
-            pref === "skip"
-              ? "自动跳过"
-              : pref === "no-skip"
-              ? "不跳过"
-              : "未设置"
-          }`;
-          setTimeout(() => (notice.show = ""), 2000);
+          showNotice(
+            `片尾偏好已设置为: ${
+              pref === "skip"
+                ? "自动跳过"
+                : pref === "no-skip"
+                ? "不跳过"
+                : "未设置"
+            }`,
+            2000
+          );
         }
       },
       destroy() {
